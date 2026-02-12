@@ -3,7 +3,6 @@ const cors = require("cors");
 const bcrypt = require("bcrypt");
 const axios = require("axios");
 const net = require("net");
-const serverless = require("serverless-http");
 const { Pool } = require("pg");
 
 const app = express();
@@ -160,4 +159,4 @@ app.post("/api/home/search", async (req, res) => {
   }
 });
 
-module.exports = serverless(app);
+module.exports = app;
