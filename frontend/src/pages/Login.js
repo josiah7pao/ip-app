@@ -25,25 +25,28 @@ export default function Login({ setUser }) {
 
   return (
     <div className="app-container">
-      <h2>Login</h2>
-      <form onSubmit={handleLogin}>
+      <div className="login-card">
+      <h2 className="login-title">Login</h2>
+      <p className="login-subtitle">Sign in to view IP geolocation details.</p>
+      <form onSubmit={handleLogin} className="login-form">
         <input
+          className="form-input"
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
-        <br />
         <input
+          className="form-input"
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <br />
-        <button type="submit">Login</button>
+        <button className="btn-success" type="submit">Login</button>
       </form>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className="error">{error}</p>}
+      </div>
     </div>
   );
 }

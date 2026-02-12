@@ -145,7 +145,7 @@ export default function Home({ user, setUser }) {
 
   const coords = ipData.loc ? ipData.loc.split(",").map(Number) : [0, 0];
 
-  return ( // home page ui
+  return (
     <div className="page">
       <div className="split-layout">
         <div className="card">
@@ -171,34 +171,43 @@ export default function Home({ user, setUser }) {
               value={ip}
               onChange={(e) => setIp(e.target.value)}
             />
-            <button type="submit">Search</button>
-            <button type="button" onClick={handleClearSearch}>
+            <button className="btn-success" type="submit">Search</button>
+            <button className="btn-neutral" type="button" onClick={handleClearSearch}>
               Clear
             </button>
           </form>
 
           {error && <p className="error">{error}</p>}
 
-          <h3>Search History</h3>
-          <button
-            type="button"
-            onClick={handleDeleteSelected}
-            disabled={selectedIds.length === 0}
-          >
-            Delete Selected
-          </button>
-          <ul>
+          <div className="history-header">
+            <h3>Search History</h3>
+            <button
+              className="btn-danger"
+              type="button"
+              onClick={handleDeleteSelected}
+              disabled={selectedIds.length === 0}
+            >
+              Delete Selected
+            </button>
+          </div>
+          <ul className="history-list">
             {history.map((item) => (
-              <li key={item.id}>
+              <li className="history-item" key={item.id}>
                 <input
                   type="checkbox"
                   checked={selectedIds.includes(item.id)}
                   onChange={() => toggleSelection(item.id)}
-                />{" "}
-                <button type="button" onClick={() => handleHistoryClick(item.ip_address)}>
-                  {item.ip_address}
-                </button>{" "}
-                - {new Date(item.created_at).toLocaleString()}
+                />
+                <div className="history-text">
+                  <button
+                    className="history-ip-btn"
+                    type="button"
+                    onClick={() => handleHistoryClick(item.ip_address)}
+                  >
+                    {item.ip_address}
+                  </button>
+                  <span className="history-time">{new Date(item.created_at).toLocaleString()}</span>
+                </div>
               </li>
             ))}
           </ul>
