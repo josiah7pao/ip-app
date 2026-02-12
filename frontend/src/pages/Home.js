@@ -1,14 +1,36 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import L from "leaflet";
 import "../App.css";
 import "leaflet/dist/leaflet.css";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 
 const API_BASE = process.env.REACT_APP_API_BASE || "/api";
+
+// Fix Leaflet marker icon paths for bundled React builds.
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+});
+
+function RecenterMap({ coords }) {
+  const map = useMap();
+
+  useEffect(() => {
+    map.setView(coords, map.getZoom(), { animate: true });
+  }, [coords, map]);
+
+  return null;
+}
 
 export default function Home({ user, setUser }) {
   const [ipData, setIpData] = useState(null);
   const [history, setHistory] = useState([]);
+  const [selectedIds, setSelectedIds] = useState([]);
   const [ip, setIp] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -29,10 +51,11 @@ export default function Home({ user, setUser }) {
 
   const fetchDefault = async () => {
     try {
-      // loads current client geolocation + saved history on first visit.
+      // loads current client geolocation + saved history on first visit
       const res = await axios.get(`${API_BASE}/home`);
       setIpData(res.data.ipData);
       setHistory(res.data.ip_history);
+      setSelectedIds([]);
     } catch {
       setError("Failed to fetch IP info");
     } finally {
@@ -59,13 +82,56 @@ export default function Home({ user, setUser }) {
     }
 
     try {
-      // search external IP and refresh history from backend response.
+      // search external IP and refresh history from backend response
       const res = await axios.post(`${API_BASE}/home/search`, { ip });
       setIpData(res.data.ipData);
       setHistory(res.data.ip_history);
+      setSelectedIds([]);
       setIp("");
     } catch (err) {
       setError(err.response?.data?.error || "Failed to fetch IP info");
+    }
+  };
+
+  // search history clear and be clickable
+
+  const handleClearSearch = async () => {
+    setIp("");
+    setError("");
+    setLoading(true);
+    await fetchDefault();
+  };
+
+  const handleHistoryClick = async (historyIp) => {
+    setError("");
+
+    try {
+      const res = await axios.post(`${API_BASE}/home/lookup`, { ip: historyIp });
+      setIpData(res.data.ipData);
+    } catch (err) {
+      setError(err.response?.data?.error || "Failed to fetch IP info");
+    }
+  };
+
+  const toggleSelection = (id) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((selectedId) => selectedId !== id) : [...prev, id]
+    );
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedIds.length === 0) return;
+
+    setError("");
+
+    try {
+      const res = await axios.delete(`${API_BASE}/home/history`, {
+        data: { ids: selectedIds },
+      });
+      setHistory(res.data.ip_history);
+      setSelectedIds([]);
+    } catch (err) {
+      setError(err.response?.data?.error || "Failed to delete selected history");
     }
   };
 
@@ -79,7 +145,7 @@ export default function Home({ user, setUser }) {
 
   const coords = ipData.loc ? ipData.loc.split(",").map(Number) : [0, 0];
 
-  return (
+  return ( // home page ui
     <div className="page">
       <div className="split-layout">
         <div className="card">
@@ -106,15 +172,33 @@ export default function Home({ user, setUser }) {
               onChange={(e) => setIp(e.target.value)}
             />
             <button type="submit">Search</button>
+            <button type="button" onClick={handleClearSearch}>
+              Clear
+            </button>
           </form>
 
           {error && <p className="error">{error}</p>}
 
           <h3>Search History</h3>
+          <button
+            type="button"
+            onClick={handleDeleteSelected}
+            disabled={selectedIds.length === 0}
+          >
+            Delete Selected
+          </button>
           <ul>
             {history.map((item) => (
               <li key={item.id}>
-                {item.ip_address} - {new Date(item.created_at).toLocaleString()}
+                <input
+                  type="checkbox"
+                  checked={selectedIds.includes(item.id)}
+                  onChange={() => toggleSelection(item.id)}
+                />{" "}
+                <button type="button" onClick={() => handleHistoryClick(item.ip_address)}>
+                  {item.ip_address}
+                </button>{" "}
+                - {new Date(item.created_at).toLocaleString()}
               </li>
             ))}
           </ul>
@@ -126,6 +210,7 @@ export default function Home({ user, setUser }) {
 
         <div className="map-wrapper">
           <MapContainer center={coords} zoom={13} className="map">
+            <RecenterMap coords={coords} />
             <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               attribution="&copy; OpenStreetMap contributors"
