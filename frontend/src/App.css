@@ -160,6 +160,14 @@ button:disabled {
   font-weight: 600;
 }
 
+.error-slot {
+  min-height: 24px;
+}
+
+.error-slot.is-hidden {
+  visibility: hidden;
+}
+
 .history-header {
   margin-top: 18px;
   display: flex;

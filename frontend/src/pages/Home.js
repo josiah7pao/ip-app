@@ -177,7 +177,9 @@ export default function Home({ user, setUser }) {
             </button>
           </form>
 
-          {error && <p className="error">{error}</p>}
+          <p className={`error error-slot ${error ? "" : "is-hidden"}`}>
+            {error || "placeholder"}
+          </p>
 
           <div className="history-header">
             <h3>Search History</h3>
