@@ -33,6 +33,7 @@ export default function Home({ user, setUser }) {
   const [selectedIds, setSelectedIds] = useState([]);
   const [ip, setIp] = useState("");
   const [error, setError] = useState("");
+  const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(true);
 
   const isPrivateIP = (value) => {
@@ -88,7 +89,9 @@ export default function Home({ user, setUser }) {
       setHistory(res.data.ip_history);
       setSelectedIds([]);
       setIp("");
+      setStatus(`Showing results for ${res.data.ipData.ip}`);
     } catch (err) {
+      setStatus("");
       setError(err.response?.data?.error || "Failed to fetch IP info");
     }
   };
@@ -98,17 +101,21 @@ export default function Home({ user, setUser }) {
   const handleClearSearch = async () => {
     setIp("");
     setError("");
+    setStatus("Showing your current IP location");
     setLoading(true);
     await fetchDefault();
   };
 
   const handleHistoryClick = async (historyIp) => {
     setError("");
+    setStatus("");
 
     try {
       const res = await axios.post(`${API_BASE}/home/lookup`, { ip: historyIp });
       setIpData(res.data.ipData);
+      setStatus(`Showing results for ${res.data.ipData.ip}`);
     } catch (err) {
+      setStatus("");
       setError(err.response?.data?.error || "Failed to fetch IP info");
     }
   };
@@ -123,6 +130,8 @@ export default function Home({ user, setUser }) {
     if (selectedIds.length === 0) return;
 
     setError("");
+    setStatus("");
+    const deletedCount = selectedIds.length;
 
     try {
       const res = await axios.delete(`${API_BASE}/home/history`, {
@@ -130,7 +139,9 @@ export default function Home({ user, setUser }) {
       });
       setHistory(res.data.ip_history);
       setSelectedIds([]);
+      setStatus(`Deleted ${deletedCount} history item${deletedCount > 1 ? "s" : ""}`);
     } catch (err) {
+      setStatus("");
       setError(err.response?.data?.error || "Failed to delete selected history");
     }
   };
@@ -177,9 +188,8 @@ export default function Home({ user, setUser }) {
             </button>
           </form>
 
-          <p className={`error error-slot ${error ? "" : "is-hidden"}`}>
-            {error || "placeholder"}
-          </p>
+          <p className={`status status-slot ${status ? "" : "is-hidden"}`}>{status || "placeholder"}</p>
+          <p className={`error error-slot ${error ? "" : "is-hidden"}`}>{error || "placeholder"}</p>
 
           <div className="history-header">
             <h3>Search History</h3>

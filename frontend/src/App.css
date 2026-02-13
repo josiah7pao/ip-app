@@ -168,6 +168,20 @@ button:disabled {
   visibility: hidden;
 }
 
+.status {
+  margin: 12px 0 0;
+  color: #187a42;
+  font-weight: 600;
+}
+
+.status-slot {
+  min-height: 24px;
+}
+
+.status-slot.is-hidden {
+  visibility: hidden;
+}
+
 .history-header {
   margin-top: 18px;
   display: flex;
