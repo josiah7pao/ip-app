@@ -200,7 +200,7 @@ button:disabled {
   padding: 0;
   display: grid;
   gap: 8px;
-  max-height: 210px;
+  height: 210px;
   overflow-y: auto;
 }
 
