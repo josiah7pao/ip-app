@@ -215,6 +215,18 @@ button:disabled {
   background: #fbfcff;
 }
 
+.history-empty {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: var(--muted);
+  border: 1px dashed #cfd7e8;
+  border-radius: 10px;
+  background: #fbfcff;
+  padding: 12px;
+}
+
 .history-text {
   display: flex;
   flex-wrap: wrap;

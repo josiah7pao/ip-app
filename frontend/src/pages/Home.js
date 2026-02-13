@@ -203,6 +203,9 @@ export default function Home({ user, setUser }) {
             </button>
           </div>
           <ul className="history-list">
+            {history.length === 0 && (
+              <li className="history-empty">No search history yet. Search an IP to add it here.</li>
+            )}
             {history.map((item) => (
               <li className="history-item" key={item.id}>
                 <input
