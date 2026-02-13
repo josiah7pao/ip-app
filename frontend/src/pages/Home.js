@@ -27,7 +27,7 @@ function RecenterMap({ coords }) {
   return null;
 }
 
-export default function Home({ user, setUser }) {
+export default function Home({ setUser }) {
   const [ipData, setIpData] = useState(null);
   const [history, setHistory] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
